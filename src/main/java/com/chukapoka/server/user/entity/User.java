@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "tb_user")
 public class User {
 
@@ -39,14 +40,7 @@ public class User {
     @Transient
     private String authorities; // 권한 ROLE_USER || ROLE_ADMIN
 
-    @Builder
-    public User(String email, String password, String emailType,String authorities)  {
-        this.email = email;
-        this.password = password;
-        this.emailType = emailType;
-        this.authorities = authorities;
-        this.updatedAt = LocalDateTime.now();
-    }
+
 
 
 

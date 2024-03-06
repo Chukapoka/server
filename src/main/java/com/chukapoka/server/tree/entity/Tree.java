@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @DynamicUpdate // 데이터의 변경사항이 있는 것만 수정
 @Builder
 @Table(name = "tb_tree")
@@ -23,6 +23,7 @@ public class Tree {
     @Id
     @Column(name = "treeId", unique = true, nullable = false)
     private String treeId;
+
 
     /** 트리제목 */
     @Column(name = "title")
@@ -61,7 +62,7 @@ public class Tree {
     private Long updatedBy;
 
     /** 생성 시간 */
-    @Column(name = "updatedAt", nullable = false)
+    @Column(name = "updatedAt")
     @LastModifiedDate
     private LocalDateTime updatedAt;
 

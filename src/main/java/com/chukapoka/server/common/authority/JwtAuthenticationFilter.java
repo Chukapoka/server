@@ -25,7 +25,6 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String BEARER_PREFIX = "Bearer";
-
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenRepository tokenRepository;
 
@@ -65,7 +64,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
     // Request Header 에서 토큰 정보를 꺼내오기
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader( AUTHORIZATION_HEADER);
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         return (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) ?
                 Strings.hasLength(bearerToken) ? bearerToken.substring(7) : null : null;
     }

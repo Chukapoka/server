@@ -32,12 +32,12 @@ public class Token {
 
     // 만료 시간을 나타내는 컬럼 추가
     @Column(name = "at_expiration")
-    private LocalDateTime atExpiration; // access token 만료 시간
+    private Long atExpiration; // access token 만료 시간
 
     @Column(name = "rt_expiration")
-    private LocalDateTime rtExpiration; // refresh token 만료 시간
+    private Long rtExpiration; // refresh token 만료 시간
 
-    public Token(String key, String atValue, String rtValue, LocalDateTime atExpiration, LocalDateTime rtExpiration) {
+    public Token(String key, String atValue, String rtValue, Long atExpiration, Long rtExpiration) {
         this.key = key;
         this.atValue = atValue;
         this.rtValue = rtValue;

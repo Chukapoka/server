@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 
 import java.security.Key;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -146,10 +147,6 @@ public class JwtTokenProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
-    }
-    public Long getExpirationTime(String token) {
-        Claims claims = parseClaims(token);
-        return claims.getExpiration().getTime();
     }
 
     public boolean isTokenExpired(String token) {

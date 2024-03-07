@@ -26,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -127,7 +128,8 @@ public class UserService {
                 .email(email)
                 .password(hashedPassword)
                 .emailType(EmailType.DEFAULT.name())
-                .authorities(authorities)
+                .updatedAt(LocalDateTime.now())
+                .role(authorities)
                 .build();
     }
 
@@ -173,6 +175,8 @@ public class UserService {
                 .key(authentication.getName())
                 .atValue(jwtToken.getAccessToken())
                 .rtValue(jwtToken.getRefreshToken())
+                .atExpiration(jwtToken.getAtExpiration())
+                .rtExpiration(jwtToken.getRtExpiration())
                 .build();
 
         return tokenRepository.save(token).toResponseDto();

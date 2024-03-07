@@ -3,6 +3,8 @@ package com.chukapoka.server.common.authority;
 
 import com.chukapoka.server.common.authority.jwt.JwtAuthenticationFilter;
 import com.chukapoka.server.common.authority.jwt.JwtTokenProvider;
+import com.chukapoka.server.common.authority.oauth.handler.CustomAuthenticationFailureHandler;
+import com.chukapoka.server.common.authority.oauth.handler.CustomAuthenticationSuccessHandler;
 import com.chukapoka.server.common.enums.Authority;
 import com.chukapoka.server.common.repository.TokenRepository;
 import com.chukapoka.server.common.service.CustomOAuth2UserService;
@@ -19,8 +21,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -34,19 +34,23 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     @Autowired
     private final TokenRepository tokenRepository;
-    @Autowired
     private final CustomOAuth2UserService customOAuth2UserService;
-    private final AuthenticationFailureHandler oAuth2LoginFailureHandler;
-    private final AuthenticationSuccessHandler oAuth2LoginSuccessHandler;
+    private final CustomAuthenticationFailureHandler oAuth2LoginFailureHandler;
+    private final CustomAuthenticationSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        /** rest api 설정 */
         http
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable) // 기본 인증 로그인 비활성화
+                .logout(AbstractHttpConfigurer::disable) // 기본 로그아웃 비활성화
+                .csrf(AbstractHttpConfigurer::disable) // csrf 비활성화 -> cookie를 사용하지 않으면 꺼도 된다. (cookie를 사용할 경우 httpOnly(XSS 방어), sameSite(CSRF 방어)로 방어해야 한다.)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션관리 정책을 STATELESS(세션이 있으면 쓰지도 않고, 없으면 만들지도 않는다)
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, tokenRepository), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, tokenRepository), UsernamePasswordAuthenticationFilter.class);
+
+        /** request 인증, 인가 설정 */
+        http
                 .authorizeHttpRequests((authorizeRequests) -> {
                             authorizeRequests
                                     .requestMatchers("/api/user/emailCheck", "/api/user", "/api/user/authNumber", "/api/health").anonymous()
@@ -54,6 +58,7 @@ public class SecurityConfig {
                                     .anyRequest().authenticated(); // 테스트를 위한 모든권한 설정(테스트 후 삭제 예정)
 
                 });
+
         /** OAuth2 로그인 설정 */
         http
                 .oauth2Login((oauth2) ->

@@ -1,4 +1,4 @@
-package com.chukapoka.server.common.authority;
+package com.chukapoka.server;
 
 
 import lombok.RequiredArgsConstructor;

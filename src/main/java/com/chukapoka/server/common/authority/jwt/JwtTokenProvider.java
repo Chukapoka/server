@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 
 import java.security.Key;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -83,19 +84,16 @@ public class JwtTokenProvider {
         return TokenDto.builder()
                 .grantType(BEARER_TYPE)
                 .accessToken(accessToken)
-                .accessTokenExpiresIn(accessTokenExpiresIn.getTime())
                 .refreshToken(refreshToken)
-                .refreshTokenExpiresIn(refreshExpiration.getTime())
+                .atExpiration(formatDate(accessTokenExpiresIn))
+                .rtExpiration(formatDate(refreshExpiration))
                 .build();
     }
-
-
 
 
     /**
      * JWT 토큰에서 사용자 정보를 추출하여 인증 객체를 반환하는 메서드
      */
-
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
 
@@ -138,21 +136,24 @@ public class JwtTokenProvider {
         }
         return false;
     }
+    public boolean isTokenExpired(String token) {
+        Claims claims = parseClaims(token);
+        Date expirationDate = claims.getExpiration();
+        return expirationDate == null || !expirationDate.before(new Date());
+    }
 
-    // JWT 토큰에서 클레임(클레임을 포함한 부분)을 추출하는 메서드
-    Claims parseClaims(String token) {
+
+    /** JWT 토큰에서 클레임(클레임을 포함한 부분)을 추출하는 메서드 */
+    private Claims parseClaims(String token) {
         try {
             return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
     }
-
-    public boolean isTokenExpired(String token) {
-        Claims claims = parseClaims(token);
-        Date expirationDate = claims.getExpiration();
-        return expirationDate != null && expirationDate.before(new Date());
+    /** 토큰 만료기한 날짜 포맷메서드 */
+    private String formatDate(Date date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        return dateFormat.format(date);
     }
-
-
 }

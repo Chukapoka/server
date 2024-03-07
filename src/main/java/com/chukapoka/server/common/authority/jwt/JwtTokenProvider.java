@@ -1,4 +1,4 @@
-package com.chukapoka.server.common.authority;
+package com.chukapoka.server.common.authority.jwt;
 
 
 import com.chukapoka.server.common.dto.CustomUser;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 
 import java.security.Key;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
 
-    private static final String AUTHORITIES_KEY = "auth";
+    private static final String AUTHORITIES_KEY = "Authorization";
     private static final String BEARER_TYPE = "Bearer";
     private static final String USER_KEY = "userId";
     // Access Token 만료 시간 상수 (30분)

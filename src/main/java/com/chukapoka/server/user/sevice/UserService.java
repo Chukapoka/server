@@ -2,7 +2,7 @@ package com.chukapoka.server.user.sevice;
 
 
 
-import com.chukapoka.server.common.authority.JwtTokenProvider;
+import com.chukapoka.server.common.authority.jwt.JwtTokenProvider;
 
 import com.chukapoka.server.common.dto.CustomUser;
 import com.chukapoka.server.common.dto.TokenDto;

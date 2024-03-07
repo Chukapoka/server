@@ -1,4 +1,4 @@
-package com.chukapoka.server.common.authority;
+package com.chukapoka.server.common.authority.jwt;
 
 import com.chukapoka.server.common.entity.Token;
 import com.chukapoka.server.common.repository.TokenRepository;

@@ -38,7 +38,7 @@ public class User {
     private LocalDateTime updatedAt;
 
     @Transient
-    private String authorities; // 권한 ROLE_USER || ROLE_ADMIN
+    private String role; // 권한 ROLE_USER || ROLE_ADMIN
 
 
 

@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
 
@@ -60,11 +61,14 @@ public class JwtTokenProvider {
         Date accessTokenExpiresIn = new Date(now.getTime() + ACCESS_EXPIRATION_MILLISECONDS);
         Date refreshExpiration = new Date(now.getTime() + REFRESH_EXPIRATION_MILLISECONDS);
 
+        OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+        String userId = (String) oauth2User.getAttribute("userId"); // 사용자 ID 가져오기
+
         // Access Token 생성
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities) // 권한
-                .claim(USER_KEY, ((CustomUser) authentication.getPrincipal()).getUserId())
+                .claim(USER_KEY, userId)
                 .setIssuedAt(now)
                 .setExpiration(accessTokenExpiresIn) // 토큰이 만료될시간
                 .signWith(key, SignatureAlgorithm.HS256)  // 비밀키, 암호화 알고리즘이름
@@ -75,7 +79,7 @@ public class JwtTokenProvider {
         String refreshToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities) // 권한
-                .claim(USER_KEY, ((CustomUser) authentication.getPrincipal()).getUserId())  // user id
+                .claim(USER_KEY,userId)  // user id
                 .setIssuedAt(now)
                 .setExpiration(refreshExpiration)
                 .signWith(key, SignatureAlgorithm.HS256)

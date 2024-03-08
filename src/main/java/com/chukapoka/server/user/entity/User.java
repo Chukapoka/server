@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 
 @Entity
@@ -41,8 +42,6 @@ public class User {
 
     @Transient
     private String role; // 권한 ROLE_USER || ROLE_ADMIN
-
-
 
 
 

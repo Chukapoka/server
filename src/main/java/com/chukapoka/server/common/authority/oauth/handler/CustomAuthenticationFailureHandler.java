@@ -14,7 +14,6 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        response.sendRedirect("http://localhost:3000");
-
+        response.sendRedirect("http://localhost:3000/api/uesr");
     }
 }

@@ -1,13 +1,17 @@
 package com.chukapoka.server.common.service;
 
 import com.chukapoka.server.common.authority.oauth.OAuth2Attribute;
+import com.chukapoka.server.common.dto.CustomUser;
 import com.chukapoka.server.common.enums.Authority;
+import com.chukapoka.server.common.enums.ResultType;
+import com.chukapoka.server.user.dto.UserResponseDto;
 import com.chukapoka.server.user.entity.User;
 import com.chukapoka.server.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -29,59 +33,37 @@ import java.util.Optional;
 /** OAuth 2.0 인증을 통해 사용자 정보를 가져오는 역할을 담당*/
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-    private final UserRepository userRepository;
+    private final UserRepository userRepository;;
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        
         // 1. 유저 정보(attributes) 가져온다
         OAuth2UserService<OAuth2UserRequest, OAuth2User> service = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = service.loadUser(userRequest);
-
-        System.out.println("oAuth2User = " + oAuth2User);
+        System.out.println("oAuth2User.getAttributes() = " + oAuth2User.getAttributes());
         // 2. 클라이언트 등록 ID(google, kakao)와 사용자 이름 속성을 가져온다.
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        String userNameAttributeName = userRequest.getClientRegistration()
-                .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
-
         // 3. OAuth2UserService를 사용하여 가져온 OAuth2User 정보로 OAuth2Attribute 객체를 만든다.
-        OAuth2Attribute oAuth2Attribute =
-                OAuth2Attribute.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
-
+        OAuth2Attribute oAuth2Attribute = OAuth2Attribute.of(registrationId, oAuth2User.getAttributes());
         // 4. OAuth2Attribute의 속성값들을 Map으로 반환 받는다.
         Map<String, Object> memberAttribute = oAuth2Attribute.convertToMap();
-
+        System.out.println("memberAttribute = " + memberAttribute);
         // 5. 사용자 email(또는 id) 정보를 가져온다.
-        String email = (String) memberAttribute.get("email");
-        Optional<User> findUser = userRepository.findByEmail(email);
+        Optional<User> findUser = userRepository.findByEmail((String) memberAttribute.get("email"));
 
         /** 회원이 존재하지 않을경우 */
         if(findUser.isEmpty()){
-            User newUser = createUser(memberAttribute);
-            userRepository.save(newUser);
             memberAttribute.put("exist", false);
             // 회원의 권한(회원이 존재하지 않으므로 기본권한인 ROLE_USER를 넣어준다), 회원속성, 속성이름을 이용해 DefaultOAuth2User 객체를 생성해 반환한다.
             return new DefaultOAuth2User(
-                    Collections.singleton(new SimpleGrantedAuthority("ROLE_" + Authority.USER)),
+                    Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
                     memberAttribute, "email");
         }
-
         /** 회원이 존재할 경우 */
         memberAttribute.put("exist", true);
         // 회원의 권한과, 회원속성, 속성이름을 이용해 DefaultOAuth2User 객체를 생성해 반환한다.
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_".concat(findUser.get().getRole()))),
                 memberAttribute, "email");
-
     }
-    /** 새로운 생성자 저장 */
-    private User createUser(Map<String, Object> memberAttribute) {
-        User newUser = new User();
-        newUser.setEmail((String) memberAttribute.get("email"));
-        newUser.setEmailType("google");
-        newUser.setUpdatedAt(LocalDateTime.now());
-        newUser.setPassword("123");
-        newUser.setRole(Authority.USER.getAuthority());
 
-        return newUser;
-    }
 }

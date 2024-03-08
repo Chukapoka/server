@@ -29,7 +29,7 @@ public class CustomUser extends User implements OAuth2User, UserDetails {
 
     @Override
     public String getName() {
-        return attributes.get(attributeKey).toString();
+        return (String.valueOf(userId));
     }
     @Override
     public <A> A getAttribute(String name) {

@@ -40,7 +40,7 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @Transient
+    @Column
     private String role; // 권한 ROLE_USER || ROLE_ADMIN
 
 

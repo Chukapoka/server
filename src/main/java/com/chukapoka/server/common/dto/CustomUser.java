@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -25,6 +26,12 @@ public class CustomUser extends User implements OAuth2User, UserDetails {
         super(String.valueOf(userId), password, authorities);
         this.userId = userId;
     }
+    public CustomUser(Long userId, String password, Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes) {
+        super(String.valueOf(userId), password, authorities);
+        this.userId = userId;
+        this.attributes = attributes;
+    }
+
 
 
     @Override
@@ -38,7 +45,10 @@ public class CustomUser extends User implements OAuth2User, UserDetails {
 
     @Override
     public Map<String, Object> getAttributes() {
-        return null;
+        if (attributes == null) {
+            return Collections.emptyMap(); // 빈 맵을 반환하거나, 원하는 기본값으로 대체할 수 있습니다.
+        }
+        return attributes;
     }
 
 

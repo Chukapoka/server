@@ -50,6 +50,7 @@ public class JwtTokenProvider {
      */
 
     public TokenDto createToken(Authentication authentication) {
+        System.out.println("Tokenauthentication = " + authentication);
         // 권한 정보를 쉼표로 구분하여 문자열로 변환
         String authorities = authentication
                 .getAuthorities()

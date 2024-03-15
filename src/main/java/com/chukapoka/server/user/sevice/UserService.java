@@ -170,6 +170,7 @@ public class UserService {
 
     /** 유저정보가 담긴 Authentication으로 토큰 생성 및 Token 테이블에 등록 */
     public TokenResponseDto saveToken(Authentication authentication){
+        System.out.println("authentication = " + authentication);
         // JWT 토큰 생성
         TokenDto jwtToken = jwtTokenProvider.createToken(authentication);
         Token token = Token.builder()

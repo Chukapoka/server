@@ -1,7 +1,6 @@
 package com.chukapoka.server.common.service;
 
 import com.chukapoka.server.common.authority.oauth.OAuth2Attribute;
-import com.chukapoka.server.common.dto.CustomUser;
 import com.chukapoka.server.common.enums.Authority;
 import com.chukapoka.server.user.entity.User;
 import com.chukapoka.server.user.repository.UserRepository;
@@ -32,7 +31,6 @@ import java.util.Optional;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         // 1. 유저 정보(attributes) 가져온다
@@ -51,28 +49,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         Optional<User> findUser = userRepository.findByEmail((String) memberAttribute.get("email"));
         /** 회원이 존재하지 않을경우 */
         if(findUser.isEmpty()){
-            System.out.println("소셜로그인 회원가입 진행중" );
-            createUser(memberAttribute);
             return new DefaultOAuth2User(
                     Collections.singleton(new SimpleGrantedAuthority("ROLE_"+Authority.USER.getAuthority())),
                     memberAttribute, "email");
         }
         /** 회원이 존재할 경우 */
-        // 회원의 권한과, 회원속성, 속성이름을 이용해 DefaultOAuth2User 객체를 생성해 반환한다.
-        System.out.println("소션로그인 진행");
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_"+Authority.USER.getAuthority())),
                 memberAttribute, "email");
     }
 
-    private User createUser(Map<String, Object> memberAttribute) {
-        User newUser = User.builder()
-                .email((String) memberAttribute.get("email"))
-                .emailType((String) memberAttribute.get("provider"))
-                .updatedAt(LocalDateTime.now())
-                .password(bCryptPasswordEncoder.encode((String) memberAttribute.get("id")))
-                .role("ROLE_"+Authority.USER.getAuthority())
-                .build();
-       return userRepository.save(newUser);
-    }
+
 }

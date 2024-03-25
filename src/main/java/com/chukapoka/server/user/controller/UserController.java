@@ -59,7 +59,7 @@ public class UserController {
     /** 토큰 재발급(refresh token 유효한 상태) */
     @PostMapping("/reissue")
     public BaseResponse<TokenResponseDto> reissue() {
-        long userId = ((CustomUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUserId();
+        long userId = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUserId();
         TokenResponseDto tokenDto = userService.reissue(userId);
         return new BaseResponse<>(ResultType.SUCCESS, tokenDto);
     }
@@ -68,7 +68,7 @@ public class UserController {
     @PostMapping("/logout")
         public BaseResponse<ResultType> logout() {
         // 인증된 사용자 Id
-        long userId = ((CustomUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUserId();
+        long userId = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUserId();
         // 사용자의 ID를 기반으로 로그아웃 수행
         ResultType logout = userService.logout(userId);
         return new BaseResponse<>(ResultType.SUCCESS, logout);

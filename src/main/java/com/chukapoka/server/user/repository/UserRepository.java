@@ -20,10 +20,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmailAndEmailType(String email, String emailType);
 
-    @Override
-    Optional<User> findById(Long aLong);
+    Optional<User> findById(Long id);
 
     // 이메일이 등록되어있는지 이메일과 이메일타입 확인
     boolean existsByEmailAndEmailType(String email, String emailType);
+
 
 }

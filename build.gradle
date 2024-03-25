@@ -35,13 +35,10 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 
 	// PostgreSQL JDBC 드라이버 의존성
-//	runtimeOnly 'org.postgresql:postgresql'
+	runtimeOnly 'org.postgresql:postgresql'
 	// h2
-	runtimeOnly 'com.h2database:h2'
+	//	runtimeOnly 'com.h2database:h2'
 
-
-	// Jakarta Validation API 의존성
-//	implementation("jakarta.validation:jakarta.validation-api") // 최신 버전 사용 권장
 
 	// Spring Security 사용 시 필요한 의존성
 	implementation("org.springframework.boot:spring-boot-starter-security")
@@ -58,6 +55,8 @@ dependencies {
 	// enable production
 	implementation ("org.springframework.boot:spring-boot-starter-actuator")
 
+	// modelmapper
+	implementation 'org.modelmapper:modelmapper:2.4.4'
 }
 
 

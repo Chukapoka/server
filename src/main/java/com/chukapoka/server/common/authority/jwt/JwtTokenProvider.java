@@ -1,9 +1,10 @@
-package com.chukapoka.server.common.authority;
+package com.chukapoka.server.common.authority.jwt;
 
-
-import com.chukapoka.server.common.dto.CustomUser;
+import com.chukapoka.server.common.dto.CustomUserDetails;
 import com.chukapoka.server.common.dto.TokenDto;
 
+import com.chukapoka.server.user.entity.User;
+import com.chukapoka.server.user.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -19,8 +20,10 @@ import org.springframework.stereotype.Component;
 
 
 import java.security.Key;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -35,12 +38,14 @@ public class JwtTokenProvider {
     private static final long ACCESS_EXPIRATION_MILLISECONDS = 1000 * 60 * 30;
     // Refresh Token 만료 시간 상수 (7일)
     private static final long REFRESH_EXPIRATION_MILLISECONDS = 1000L * 60 * 60 * 24 * 7;
+    private UserRepository userRepository;
     private final Key key;
     // 비밀 키를 Base64 디코딩한 값으로 초기화
     @Autowired
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, UserRepository userRepository) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.userRepository = userRepository;
     }
 
     /**
@@ -63,7 +68,7 @@ public class JwtTokenProvider {
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities) // 권한
-                .claim(USER_KEY, ((CustomUser) authentication.getPrincipal()).getUserId())
+                .claim(USER_KEY, ((CustomUserDetails) authentication.getPrincipal()).getUserId())
                 .setIssuedAt(now)
                 .setExpiration(accessTokenExpiresIn) // 토큰이 만료될시간
                 .signWith(key, SignatureAlgorithm.HS256)  // 비밀키, 암호화 알고리즘이름
@@ -74,7 +79,7 @@ public class JwtTokenProvider {
         String refreshToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities) // 권한
-                .claim(USER_KEY, ((CustomUser) authentication.getPrincipal()).getUserId())  // user id
+                .claim(USER_KEY, ((CustomUserDetails) authentication.getPrincipal()).getUserId())  // user id
                 .setIssuedAt(now)
                 .setExpiration(refreshExpiration)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -83,8 +88,9 @@ public class JwtTokenProvider {
         return TokenDto.builder()
                 .grantType(BEARER_TYPE)
                 .accessToken(accessToken)
-                .accessTokenExpiresIn(accessTokenExpiresIn.getTime())
                 .refreshToken(refreshToken)
+                .atExpiration(formatDate(accessTokenExpiresIn))
+                .rtExpiration(formatDate(refreshExpiration))
                 .build();
     }
 
@@ -94,7 +100,6 @@ public class JwtTokenProvider {
     /**
      * JWT 토큰에서 사용자 정보를 추출하여 인증 객체를 반환하는 메서드
      */
-
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
 
@@ -112,8 +117,14 @@ public class JwtTokenProvider {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
+        // 데이터베이스에서 사용자 정보 조회
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            throw new RuntimeException("User not found for id: " + userId);
+        }
+        User user = userOptional.get();
         // UserDetails 객체 생성
-        UserDetails principal = new CustomUser(userId, claims.getSubject(), authorities);
+        UserDetails principal = new CustomUserDetails(user);
 
         // UsernamePasswordAuthenticationToken을 사용하여 Authentication 객체 반환
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
@@ -155,6 +166,11 @@ public class JwtTokenProvider {
         Claims claims = parseClaims(token);
         Date expirationDate = claims.getExpiration();
         return expirationDate != null && expirationDate.before(new Date());
+    }
+    /** 토큰 만료기한 날짜 포맷메서드 */
+    private String formatDate(Date date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        return dateFormat.format(date);
     }
 
 

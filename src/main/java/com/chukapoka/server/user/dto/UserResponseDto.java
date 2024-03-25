@@ -21,9 +21,4 @@ public class UserResponseDto {
     private Long userId; // unique_userid
     private TokenResponseDto token; // JWT 토큰
 
-    public UserResponseDto(ResultType result, String email, Long userId) {
-        this.result = result;
-        this.email = email;
-        this.userId = userId;
-    }
 }

@@ -1,4 +1,4 @@
-package com.chukapoka.server.common.authority;
+package com.chukapoka.server.common.authority.jwt;
 
 import com.chukapoka.server.common.entity.Token;
 import com.chukapoka.server.common.repository.TokenRepository;
@@ -25,7 +25,6 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String BEARER_PREFIX = "Bearer";
-
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenRepository tokenRepository;
 
@@ -36,8 +35,6 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         // 1. Request Header 에서 토큰을 꺼냄
         String accessToken = resolveToken((HttpServletRequest) request);
-//        String data = tokenRepository.getAccessToken(token);
-//        System.out.println("data = " + data);
         // 2. validateToken 으로 토큰 유효성 검사
         // 정상 토큰이면 해당 토큰으로 Authentication 을 가져와서 SecurityContext 에 저장
         if (StringUtils.hasText(accessToken)) {

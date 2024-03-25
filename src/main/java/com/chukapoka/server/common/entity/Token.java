@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.crypto.KEM;
+
 @Getter
 @NoArgsConstructor
 @Data
@@ -26,23 +28,25 @@ public class Token {
 
     @Column(name = "rt_value")
     private String rtValue; // refresh token
-    // TODO: 현진 access token, refresh token 만료시간 컬럼 추가
+
+    // 만료 시간을 나타내는 컬럼 추가
+    @Column(name = "at_expiration")
+    private String atExpiration; // access token 만료 시간
+
+    @Column(name = "rt_expiration")
+    private String rtExpiration; // refresh token 만료 시간
+
     @Builder
-    public Token(String key, String atValue, String rtValue) {
+    public Token(String key, String atValue, String rtValue, String atExpiration, String rtExpiration) {
         this.key = key;
         this.atValue = atValue;
         this.rtValue = rtValue;
+        this.atExpiration = atExpiration;
+        this.rtExpiration = rtExpiration;
     }
-
-    public Token updateValues(String accessToken, String refreshToken) {
-        this.atValue = accessToken;
-        this.rtValue = refreshToken;
-        return this;
-    }
-
+    
     public TokenResponseDto toResponseDto(){
         return new TokenResponseDto(this.atValue);
     }
-
 
 }

@@ -57,6 +57,9 @@ dependencies {
 
 	// modelmapper
 	implementation 'org.modelmapper:modelmapper:2.4.4'
+
+	// OAuth2
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 }
 
 

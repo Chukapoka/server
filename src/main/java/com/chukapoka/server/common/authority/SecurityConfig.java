@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,6 +34,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         /** rest api 설정 */
         http
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)) // h2 <frame>요소를 사용 비활성화
                 .httpBasic(AbstractHttpConfigurer::disable) // 기본 인증 로그인 비활성화
                 .logout(AbstractHttpConfigurer::disable) // 기본 로그아웃 비활성화
                 .formLogin(AbstractHttpConfigurer::disable) // 기본 로그인 비활성화
@@ -45,7 +47,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((authorizeRequests) -> {
                     authorizeRequests
-                            .requestMatchers("/api/user/emailCheck", "/api/user", "/api/user/authNumber","/swagger-ui/**", "/v3/api-docs/**").anonymous()
+                            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**","/h2-console/**").permitAll()
+                            .requestMatchers("/api/user/emailCheck", "/api/user", "/api/user/authNumber").anonymous()
                             .requestMatchers("/api/user/logout", "api/user/reissue", "api/tree/**","api/treeItem/**").hasRole(Authority.USER.getAuthority()//  hasAnyRole은 "ROLE_" 접두사를 자동으로 추가해줌 하지만 Authority는 "ROLE_USER"로 설정해야했음 이것떄문에 회원가입할떄 권한이 안넘어갔음
 
                             );

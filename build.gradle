@@ -57,6 +57,9 @@ dependencies {
 
 	// modelmapper
 	implementation 'org.modelmapper:modelmapper:2.4.4'
+
+	// swagger3
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 }
 
 

@@ -2,9 +2,8 @@ package com.chukapoka.server.user.sevice;
 
 
 
-import com.chukapoka.server.common.authority.JwtTokenProvider;
-
-import com.chukapoka.server.common.dto.CustomUser;
+import com.chukapoka.server.common.authority.jwt.JwtTokenProvider;
+import com.chukapoka.server.common.dto.CustomUserDetails;
 import com.chukapoka.server.common.dto.TokenDto;
 import com.chukapoka.server.common.dto.TokenResponseDto;
 import com.chukapoka.server.common.entity.Token;
@@ -152,12 +151,7 @@ public class UserService {
     /** 유저정보에 따른 Authentication 생성 */
     public Authentication getAuthentication(User user) {
         return new UsernamePasswordAuthenticationToken(
-                new CustomUser(
-                        user.getId(),
-                        user.getPassword(),
-                        List.of(
-                                new SimpleGrantedAuthority("ROLE" + Authority.USER.getAuthority()))
-                ),
+                new CustomUserDetails(user),
                 null,
                 List.of(
                         new SimpleGrantedAuthority("ROLE_" + Authority.USER.getAuthority())
@@ -173,6 +167,8 @@ public class UserService {
                 .key(authentication.getName())
                 .atValue(jwtToken.getAccessToken())
                 .rtValue(jwtToken.getRefreshToken())
+                .atExpiration(jwtToken.getAtExpiration())
+                .rtExpiration(jwtToken.getRtExpiration())
                 .build();
 
         return tokenRepository.save(token).toResponseDto();

@@ -24,19 +24,19 @@ public class User {
     @Column(name = "userId")
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, name = "email", unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "emailType")
     private String emailType;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "password")
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "updateAt")
     private LocalDateTime updatedAt;
 
-    @Transient
+    @Column
     private String authorities; // 권한 ROLE_USER || ROLE_ADMIN
 
     @Builder
